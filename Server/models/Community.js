@@ -4,15 +4,20 @@ const communitySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique : true
   },
   location: {
     type: String,
-    required: true,
+    required: true
   },
+  members: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }],
   image: {
     type: String,
   },
-  userId: {
+  CreatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
