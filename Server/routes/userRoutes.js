@@ -10,5 +10,4 @@ router.route("/logout").get(logout);
 router.route("/update").post(isAuthenticated,update);
 router.route("/get-user/:id").get(isAuthenticated,getUserByid);
 
-
 export default router;

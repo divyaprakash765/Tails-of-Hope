@@ -5,7 +5,7 @@ const FoodContributionSchema = mongoose.Schema({
         type : String,
         require : true
     },
-    type : {
+    items : {
         type : String,
     },
     community: { type: mongoose.Schema.Types.ObjectId, ref: "Community" },
