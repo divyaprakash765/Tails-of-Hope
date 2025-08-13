@@ -8,6 +8,6 @@ router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/logout").get(logout);
 router.route("/update").post(isAuthenticated,update);
-router.route("/get-user/:id").get(isAuthenticated,getUserByid);
+router.route("/:id").get(isAuthenticated,getUserByid);
 
 export default router;

@@ -1,4 +1,5 @@
 import { Community } from "../models/Community.js";
+import { User } from "../models/User.js";
 
 export const createCommunity = async (req,res)=>{
 
@@ -188,3 +189,33 @@ export const removeCommunity = async (req,res)=>{
         });
     }
 }
+
+export const todays_contributor = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const adminId = req.id; // Assuming this is verified admin
+        
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false
+            });
+        }
+
+        user.contributor = true;
+        await user.save();
+
+        return res.status(200).json({
+            message: "Successfully made the contributor",
+            success: true
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
+    }
+};

@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
      type: String,
       required: true,
     },
+    contributor: {
+      type: Boolean,
+      default: false
+    },
     role: {
       type: String,
       enum: ["admin", "volunteer", "vet", "donor"],

@@ -15,10 +15,6 @@ const DogSchema = new mongoose.Schema({
     enum: ["Healthy", "Injured"],
     default: "Healthy",
   },
-  is_injured: {
-    type: Boolean,
-    default: false,
-  },
   last_seen_location: {
     type: String,
   },

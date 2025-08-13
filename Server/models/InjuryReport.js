@@ -15,7 +15,7 @@ const InjuryReportSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Pending", "Rescued", "Treated"],
+    enum: ["pending", "rescued", "treated"],
     default: "Pending",
   },
   community: {

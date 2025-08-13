@@ -60,17 +60,42 @@ export const removeFoodContribution = async (req, res) => {
             });
         }
 
-        if (foodContribution.user.toString() !== req.id) {
+        if(foodContribution.user.toString() !== req.id) {
             return res.status(403).json({
                 message: "You are not authorized to delete this contribution",
                 success: false
             });
         }
-
         await FoodContribution.findByIdAndDelete(foodId);
         return res.status(200).json({
-            message: "Food contribution deleted successfully",
+            message: "Remove food successfully",
             success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal Server Error",
+            success: false
+        });
+    }
+}
+
+export const getFoodContributionsByCommunity = async (req, res) => {
+    try {
+        const { communityId } = req.params;
+        const contributions = await FoodContribution.find({ community: communityId }).populate('user', 'fullname email');
+
+        if (!contributions || contributions.length === 0) {
+            return res.status(404).json({
+                message: "No food contributions found for this community",
+                success: false
+            });
+        }
+
+        return res.status(200).json({
+            message: "Food contributions fetched successfully",
+            success: true,
+            contributions
         });
     } catch (error) {
         console.log(error);
