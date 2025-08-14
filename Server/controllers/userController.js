@@ -1,10 +1,11 @@
 import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { sendVerificationCode,sendWelcomeEmail } from "../middleware/email.js";
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password,phoneNumber, role, bio } = req.body;
+    const { name, email, password, phoneNumber, role, bio } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -13,35 +14,96 @@ export const register = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({
-        message: "user is already exist with this email",
-        success: false,
-      });
+    let existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        return res.status(400).json({
+          message: "User already exists and is verified",
+          success: false,
+        });
+      }
+
+      if (existingUser.verificationTokenExpiresAt < Date.now()) {
+        await User.deleteOne({ _id: existingUser._id });
+      } else {
+        return res.status(400).json({
+          message: "Verification pending. Please check your email.",
+          success: false,
+        });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     await User.create({
       name,
       email,
       password: hashedPassword,
       phoneNumber,
+      verificationCode,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hrs expiry
       role,
-      profile: {
-        bio,
-      },
+      profile: { bio },
     });
+
+    sendVerificationCode(email, verificationCode);
 
     return res.status(201).json({
       message: "User created successfully",
       success: true,
     });
+
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong",
+      success: false,
+    });
   }
 };
+
+
+export const VerifyEmail = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    const user = await User.findOne({
+      verificationCode: code,
+      verificationTokenExpiresAt: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired code"
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    user.verificationTokenExpiresAt = undefined;
+
+    await user.save();
+
+    // Make sure sendWelcomeEmail is imported
+    await sendWelcomeEmail(user.email, user.name);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully"
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
 
 export const login = async (req, res) => {
   try {

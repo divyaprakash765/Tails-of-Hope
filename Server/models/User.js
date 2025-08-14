@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    isVerified: {
+       type : Boolean,
+       default : false
+    },
+    verificationCode : {
+      type : String
+    },
     role: {
       type: String,
       enum: ["admin", "volunteer", "vet", "donor"],
@@ -37,6 +44,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    verificationTokenExpiresAt:Date,
   },
   { timestamps: true }
 );
