@@ -12,3 +12,4 @@ router.route("/update").post(isAuthenticated,update);
 router.route("/:id").get(isAuthenticated,getUserByid);
 
 export default router;
+
